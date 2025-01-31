@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+Port 22
+PermitRootLogin no
+PasswordAuthentication no
+PermitEmptyPasswords no  <!-- Explicitly block empty passwords -->
+X11Forwarding no
+PrintMotd yes
+LogLevel VERBOSE

@@ -1,0 +1,21 @@
+users:
+  - name: alice
+    shell: /bin/zsh
+    state: present
+    groups: ["developers", "sudo"]
+    # Reference vaulted fields
+    password: "{{ vault_users | selectattr('name', 'equalto', 'alice') | map(attribute='password') | first }}"
+    ssh_key: "{{ vault_users | selectattr('name', 'equalto', 'alice') | map(attribute='ssh_key') | first }}"
+  - name: bob
+    shell: /bin/bash
+    state: absent  # Delete this user
+    groups: ["developers"]
+
+additional_packages:
+  - htop
+  - ncdu
+  - git
+  - nano
+
+static_files_src: "{{ playbook_dir }}/files/static"
+static_files_dest: /var/www/static

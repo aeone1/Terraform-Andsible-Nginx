@@ -1,0 +1,35 @@
+---
+- name: Create groups
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ users | map(attribute='groups') | flatten | unique }}"
+
+- name: Manage users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: "{{ item.shell }}"
+    state: "{{ item.state }}"
+    password: "{{ item.password | default(omit) }}"  # Use `omit` if no password is set
+    groups: "{{ item.groups | default([]) }}"
+    append: yes
+    create_home: yes  # Ensures the home directory is created
+    home: "/home/{{ item.name }}"  # Explicitly set the home directory
+  loop: "{{ users }}"
+  no_log: true  # Hide password from logs
+  when: item.state != 'absent'
+
+- name: Add SSH keys
+  ansible.builtin.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.ssh_key }}"
+  loop: "{{ users }}"
+  when: item.ssh_key is defined and item.state != 'absent'
+
+- name: Remove users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    state: absent
+    remove: yes
+  loop: "{{ users }}"
+  when: item.state == 'absent'

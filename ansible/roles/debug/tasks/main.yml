@@ -1,0 +1,3 @@
+- name: Debug vault_users
+  debug:
+    var: vault_users

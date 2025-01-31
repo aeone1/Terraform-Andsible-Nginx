@@ -1,0 +1,10 @@
+- hosts: all
+  become: yes
+  roles:
+    - load_vars
+    - package_mgmt
+    - user_mgmt
+    - zsh_config
+    - ssh_harden
+    - nginx_config
+    - static_files

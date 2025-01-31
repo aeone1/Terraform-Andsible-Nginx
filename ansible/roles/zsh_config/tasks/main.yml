@@ -1,0 +1,22 @@
+---
+- name: Install Zsh and dependencies
+  ansible.builtin.apt:
+    name: ["zsh", "git", "curl"]
+    state: present
+
+- name: Install OhMyZsh for eligible users
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    dest: /tmp/install-oh-my-zsh.sh
+    mode: 0755
+
+- name: Run OhMyZsh installer
+  ansible.builtin.command: /tmp/install-oh-my-zsh.sh --unattended
+  args:
+    creates: "{{ item.home | default('/home/' + item.name) }}/.oh-my-zsh"
+  loop: "{{ users | selectattr('shell', 'search', 'zsh') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+  become: yes
+  become_user: "{{ item.name }}"
+  become_method: su
